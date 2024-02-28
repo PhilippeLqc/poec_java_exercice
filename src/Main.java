@@ -1,6 +1,5 @@
 import Utilitaires.Utilitaires;
 import java.util.Scanner;
-import Utilitaires.Utilitaires;
 
 public class Main {
 

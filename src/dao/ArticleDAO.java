@@ -1,4 +1,5 @@
 package dao;
+
 import modele.Article;
 import java.sql.*;
 
@@ -7,11 +8,27 @@ public class ArticleDAO {
         return DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/jdbc_exo", "root", "");
     }
 
-    // Méthode pour lire un article dans la base de données
-    public static Article readArticle(int numero) {
+    private static void executeUpdate(String query, Object... values) {
         try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM Articles WHERE numero_article = " + numero);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            for (int i = 0; i < values.length; i++) {
+                statement.setObject(i + 1, values[i]);
+            }
+            statement.executeUpdate();
+            System.out.println("Requête exécutée avec succès !");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Article executeSqlWithoutModifydata(String query, Object... values) {
+        Article article = null;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            for (int i = 0; i < values.length; i++) {
+                statement.setObject(i + 1, values[i]);
+            }
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 int articleId = resultSet.getInt("id");
                 int articleNumero = resultSet.getInt("numero_article");
@@ -19,76 +36,40 @@ public class ArticleDAO {
                 String articleNom = resultSet.getString("nom");
                 String articleDescription = resultSet.getString("description");
 
-                System.out.println("id: " + articleId + ", numero: " + articleNumero + ", type: " + articleType +
-                        ", nom: " + articleNom + ", description: " + articleDescription);
+                article = new Article(articleId, articleNumero, articleType, articleNom, articleDescription);
+
+                System.out.println("Article trouvé : " + article);
+            } else {
+                System.out.println("Aucun article trouvé.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return article;
     }
 
-    // Méthode pour lire tous les articles dans la base de données
+    public static Article readArticle(int numero) {
+        String query = "SELECT * FROM Articles WHERE numero_article = ?";
+        return executeSqlWithoutModifydata(query, numero);
+    }
+
     public static void readAllArticles() {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM Articles");
-            while (resultSet.next()) {
-                int articleId = resultSet.getInt("id");
-                int articleNumero = resultSet.getInt("numero_article");
-                String articleType = resultSet.getString("type");
-                String articleNom = resultSet.getString("nom");
-                String articleDescription = resultSet.getString("description");
-
-                System.out.println("id: " + articleId + ", numero: " + articleNumero + ", type: " + articleType +
-                        ", nom: " + articleNom + ", description: " + articleDescription);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String query = "SELECT * FROM Articles";
+        executeSqlWithoutModifydata(query);
     }
 
-    // Méthode pour ajouter un article dans la base de données
     public static void writeArticle(Article article) {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            PreparedStatement writeArticle = connection.prepareStatement("INSERT INTO Articles (numero_article, type, nom, description) VALUES (?, ?, ?, ?)");
-            writeArticle.setInt(1, article.getNumero_article());
-            writeArticle.setString(2, article.getType());
-            writeArticle.setString(3, article.getNom());
-            writeArticle.setString(4, article.getDescription());
-            writeArticle.executeUpdate();
-            System.out.println("Article ajouté avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String query = "INSERT INTO Articles (numero_article, type, nom, description) VALUES (?, ?, ?, ?)";
+        executeUpdate(query, article.getNumero_article(), article.getType(), article.getNom(), article.getDescription());
     }
 
-    // Méthode pour modifier un article dans la base de données
     public static void updateArticle(Article article) {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            PreparedStatement updateArticle = connection.prepareStatement("UPDATE Articles SET numero_article = ?, type = ?, nom = ?, description = ? WHERE id = ?");
-            updateArticle.setInt(1, article.getNumero_article());
-            updateArticle.setString(2, article.getType());
-            updateArticle.setString(3, article.getNom());
-            updateArticle.setString(4, article.getDescription());
-            updateArticle.setInt(5, article.getId());
-            updateArticle.executeUpdate();
-            System.out.println("Article modifié avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String query = "UPDATE Articles SET numero_article = ?, type = ?, nom = ?, description = ? WHERE id = ?";
+        executeUpdate(query, article.getNumero_article(), article.getType(), article.getNom(), article.getDescription(), article.getId());
     }
 
-    // Méthode pour supprimer un article dans la base de données
     public static void deleteArticle(int numero_article) {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DELETE FROM Articles WHERE numero_article = " + numero_article);
-            System.out.println("Article supprimé avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String query = "DELETE FROM Articles WHERE numero_article = ?";
+        executeUpdate(query, numero_article);
     }
 }

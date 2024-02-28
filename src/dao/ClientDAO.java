@@ -1,4 +1,5 @@
 package dao;
+
 import modele.Client;
 import java.sql.*;
 
@@ -7,11 +8,25 @@ public class ClientDAO {
         return DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/jdbc_exo", "root", "");
     }
 
-    // Méthode pour lire un client dans la base de données
-    public static Client readClient(int id) {
+    private static void updateDatabase(String query, Object... values) {
         try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM clients WHERE id = " + id);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            for (int i = 0; i < values.length; i++) {
+                statement.setObject(i + 1, values[i]);
+            }
+            statement.executeUpdate();
+            System.out.println("Requête exécutée avec succès !");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Client readClient(int id) {
+        Client client = null;
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM clients WHERE id = ?")) {
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 int clientId = resultSet.getInt("id");
                 int clientNumeroClient = resultSet.getInt("numero_client");
@@ -19,68 +34,50 @@ public class ClientDAO {
                 String clientPrenom = resultSet.getString("prenom");
                 String clientEmail = resultSet.getString("email");
                 String clientAdresse = resultSet.getString("adresse");
-                System.out.println("id: " + clientId + ", numero_client: " + clientNumeroClient + ", nom: " + clientNom + ", prenom: " + clientPrenom + ", email: " + clientEmail + ", adresse: " + clientAdresse);
+
+                client = new Client(clientId, clientNumeroClient, clientNom, clientPrenom, clientEmail, clientAdresse);
+
+                System.out.println("Client trouvé : " + client);
+            } else {
+                System.out.println("Aucun client trouvé avec l'ID : " + id);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return client;
     }
 
 
 
-    // Méthode pour lire la liste des clients dans la base de données
+
     public static void readAllClients() {
-        try (Connection connection = getConnection()) {
-            PreparedStatement readAllClients = connection.prepareStatement("SELECT * FROM clients");
-            ResultSet result = readAllClients.executeQuery();
-            while (result.next()) {
-                System.out.println("id: " + result.getInt("id") + ", numero_client: " + result.getInt("numero_client") + ", nom: " + result.getString("nom") + ", prenom: " + result.getString("prenom") + ", email: " + result.getString("email") + ", adresse: " + result.getString("adresse"));
+        String sql = "SELECT * FROM clients";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                System.out.println("id: " + resultSet.getInt("id") + ", numero_client: " + resultSet.getInt("numero_client") + ", nom: " + resultSet.getString("nom") + ", prenom: " + resultSet.getString("prenom") + ", email: " + resultSet.getString("email") + ", adresse: " + resultSet.getString("adresse"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    // Méthode pour ajouter un client dans la base de données
+
     public static void writeClient(Client client) {
-        try (Connection connection = getConnection()) {
-            PreparedStatement writeClient = connection.prepareStatement("INSERT INTO clients (numero_client, nom, prenom, email, adresse) VALUES (?, ?, ?, ?, ?)");
-            writeClient.setInt(1, client.getNumeroClient());
-            writeClient.setString(2, client.getNom());
-            writeClient.setString(3, client.getPrenom());
-            writeClient.setString(4, client.getEmail());
-            writeClient.setString(5, client.getAdresse());
-            writeClient.executeUpdate();
-            System.out.println("Client ajouté avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String sql = "INSERT INTO clients (numero_client, nom, prenom, email, adresse) VALUES (?, ?, ?, ?, ?)";
+        updateDatabase(sql, client.getNumeroClient(), client.getNom(), client.getPrenom(), client.getEmail(), client.getAdresse());
+        System.out.println("Client ajouté avec succès !");
     }
-    // Méthode pour mettre à jour un client dans la base de données
+
     public static void updateClient(Client client) {
-        try (Connection connection = getConnection()) {
-            PreparedStatement updateClient = connection.prepareStatement("UPDATE clients SET numero_client = ?, nom = ?, prenom = ?, email = ?, adresse = ? WHERE id = ?");
-            updateClient.setInt(1, client.getNumeroClient());
-            updateClient.setString(2, client.getNom());
-            updateClient.setString(3, client.getPrenom());
-            updateClient.setString(4, client.getEmail());
-            updateClient.setString(5, client.getAdresse());
-            updateClient.setInt(6, client.getId());
-            updateClient.executeUpdate();
-            System.out.println("Client mis à jour avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String sql = "UPDATE clients SET numero_client = ?, nom = ?, prenom = ?, email = ?, adresse = ? WHERE id = ?";
+        updateDatabase(sql, client.getNumeroClient(), client.getNom(), client.getPrenom(), client.getEmail(), client.getAdresse(), client.getId());
+        System.out.println("Client mis à jour avec succès !");
     }
-    // Méthode pour supprimer un client dans la base de données
+
     public static void deleteClient(int numeroClient) {
-        try (Connection connection = getConnection()) {
-            PreparedStatement deleteClient = connection.prepareStatement("DELETE FROM clients WHERE numero_client = ?");
-            deleteClient.setInt(1, numeroClient);
-            deleteClient.executeUpdate();
-            System.out.println("Client supprimé avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String sql = "DELETE FROM clients WHERE numero_client = ?";
+        updateDatabase(sql, numeroClient);
+        System.out.println("Client supprimé avec succès !");
     }
 }

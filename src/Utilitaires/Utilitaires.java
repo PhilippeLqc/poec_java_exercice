@@ -114,7 +114,7 @@ public class Utilitaires {
             switch (choice) {
                 case 1:
                     // Lire la table complete
-                    FournisseurDAO.readAllFournisseurs();
+                    FournisseurDAO.listFournisseurs();
                     break;
                 case 2:
                     // Lire un enregistrement selon l'id
@@ -296,6 +296,7 @@ public class Utilitaires {
         Utilisateur user = UtilisateurDAO.readUser(id);
         if (user != null) {
             updateUserDetails(user, sc);
+            UtilisateurDAO.updateUser(user);
         } else {
             System.out.println("Utilisateur non trouvé.");
         }
@@ -307,6 +308,7 @@ public class Utilitaires {
         Client client = ClientDAO.readClient(id);
         if (client != null) {
             updateClientDetails(client, sc);
+            ClientDAO.updateClient(client);
         } else {
             System.out.println("Client non trouvé.");
         }
