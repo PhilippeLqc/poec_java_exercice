@@ -1,4 +1,15 @@
+package Utilitaires;
 import java.util.Scanner;
+import modele.Utilisateur;
+import modele.Client;
+import modele.Fournisseur;
+import modele.Article;
+
+import dao.UtilisateurDAO;
+import dao.ClientDAO;
+import dao.FournisseurDAO;
+import dao.ArticleDAO;
+
 
 public class Utilitaires {
 
@@ -19,13 +30,13 @@ public class Utilitaires {
             switch (choice) {
                 case 1:
                     // Lire la table complete
-                    Utilisateur.listUsers();
+                    UtilisateurDAO.listUsers();
                     break;
                 case 2:
                     // Lire un enregistrement selon l'id
                     System.out.println("Entrez l'id de l'utilisateur : ");
                     int id = sc.nextInt();
-                    Utilisateur.readUser(id);
+                    UtilisateurDAO.readUser(id);
                     break;
                 case 3:
                     // Ecrire un nouvel utilisateur
@@ -39,7 +50,7 @@ public class Utilitaires {
                     // Supprimer un utilisateur
                     System.out.println("Entrez le numéro de l'employé à supprimer : ");
                     int numero_employe = sc.nextInt();
-                    Utilisateur.deleteUser(numero_employe);
+                    UtilisateurDAO.deleteUser(numero_employe);
                     System.out.println("Utilisateur supprimé.");
                     break;
                 case 0:
@@ -61,13 +72,13 @@ public class Utilitaires {
             switch (choice) {
                 case 1:
                     // Lire la table complete
-                    Client.readAllClients();
+                    ClientDAO.readAllClients();
                     break;
                 case 2:
                     // Lire un enregistrement selon l'id
                     System.out.println("Entrez l'id du client : ");
                     int id = sc.nextInt();
-                    Client.readClient(id);
+                    ClientDAO.readClient(id);
                     break;
                 case 3:
                     // Ecrire un nouveau client
@@ -81,7 +92,7 @@ public class Utilitaires {
                     // Supprimer un client
                     System.out.println("Entrez le numéro du client à supprimer : ");
                     int numero = sc.nextInt();
-                    Client.deleteClient(numero);
+                    ClientDAO.deleteClient(numero);
                     System.out.println("Client supprimé.");
                     break;
                 case 0:
@@ -103,13 +114,13 @@ public class Utilitaires {
             switch (choice) {
                 case 1:
                     // Lire la table complete
-                    Fournisseur.readAllFournisseurs();
+                    FournisseurDAO.readAllFournisseurs();
                     break;
                 case 2:
                     // Lire un enregistrement selon l'id
                     System.out.println("Entrez l'id du fournisseur : ");
                     int id = sc.nextInt();
-                    Fournisseur.readFournisseur(id);
+                    FournisseurDAO.readFournisseur(id);
                     break;
                 case 3:
                     // Ecrire un nouveau fournisseur
@@ -123,7 +134,7 @@ public class Utilitaires {
                     // Supprimer un fournisseur
                     System.out.println("Entrez le numéro du fournisseur à supprimer : ");
                     int numero = sc.nextInt();
-                    Fournisseur.deleteFournisseur(numero);
+                    FournisseurDAO.deleteFournisseur(numero);
                     System.out.println("Fournisseur supprimé.");
                     break;
                 case 0:
@@ -145,13 +156,13 @@ public class Utilitaires {
             switch (choice) {
                 case 1:
                     // Lire la table complete
-                    Article.readAllArticles();
+                    ArticleDAO.readAllArticles();
                     break;
                 case 2:
                     // Lire un enregistrement selon l'id
                     System.out.println("Entrez l'id de l'article : ");
                     int id = sc.nextInt();
-                    Article.readArticle(id);
+                    ArticleDAO.readArticle(id);
                     break;
                 case 3:
                     // Ecrire un nouvel article
@@ -165,7 +176,7 @@ public class Utilitaires {
                     // Supprimer un article
                     System.out.println("Entrez le numéro de l'article à supprimer : ");
                     int numero = sc.nextInt();
-                    Article.deleteArticle(numero);
+                    ArticleDAO.deleteArticle(numero);
                     System.out.println("Article supprimé.");
                     break;
                 case 0:
@@ -230,7 +241,7 @@ public class Utilitaires {
         System.out.println("Entrez le mot de passe : ");
         String mot_de_passe = sc.next();
         Utilisateur new_user = new Utilisateur(0, numero_employe, nom, prenom, email, login, mot_de_passe);
-        Utilisateur.writeUser(new_user);
+        UtilisateurDAO.writeUser(new_user);
         System.out.println("Utilisateur ajouté.");
     }
 
@@ -245,8 +256,8 @@ public class Utilitaires {
         String email = sc.next();
         System.out.println("Entrez l'adresse : ");
         String adresse = sc.next();
-        Client new_client = new Client ( 0, numeroClient, nom, prenom, email, adresse);
-        Client.writeClient(new_client);
+        Client new_client = new Client( 0, numeroClient, nom, prenom, email, adresse);
+        ClientDAO.writeClient(new_client);
         System.out.println("Client ajouté.");
     }
 
@@ -260,7 +271,7 @@ public class Utilitaires {
         System.out.println("Entrez l'adresse : ");
         String adresse = sc.next();
         Fournisseur new_fournisseur = new Fournisseur(0, numero, nom, email, adresse);
-        Fournisseur.writeFournisseur(new_fournisseur);
+        FournisseurDAO.writeFournisseur(new_fournisseur);
         System.out.println("Fournisseur ajouté.");
     }
 
@@ -274,7 +285,7 @@ public class Utilitaires {
         System.out.println("Entrez la description : ");
         String description = sc.next();
         Article new_article = new Article(0, numero_article, type, nom, description);
-        Article.writeArticle(new_article);
+        ArticleDAO.writeArticle(new_article);
         System.out.println("Article ajouté.");
     }
 
@@ -282,7 +293,7 @@ public class Utilitaires {
     private static void modifyUser(Scanner sc) {
         System.out.println("Entrez l'id de l'utilisateur à modifier : ");
         int id = sc.nextInt();
-        Utilisateur user = Utilisateur.readUser(id);
+        Utilisateur user = UtilisateurDAO.readUser(id);
         if (user != null) {
             updateUserDetails(user, sc);
         } else {
@@ -293,7 +304,7 @@ public class Utilitaires {
     private static void modifyClient(Scanner sc) {
         System.out.println("Entrez l'id du client à modifier : ");
         int id = sc.nextInt();
-        Client client = Client.readClient(id);
+        Client client = ClientDAO.readClient(id);
         if (client != null) {
             updateClientDetails(client, sc);
         } else {
@@ -304,7 +315,7 @@ public class Utilitaires {
     private static void modifyFournisseur(Scanner sc) {
         System.out.println("Entrez l'id du fournisseur à modifier : ");
         int id = sc.nextInt();
-        Fournisseur fournisseur = Fournisseur.readFournisseur(id);
+        Fournisseur fournisseur = FournisseurDAO.readFournisseur(id);
         if (fournisseur != null) {
             updateFournisseurDetails(fournisseur, sc);
         } else {
@@ -315,7 +326,7 @@ public class Utilitaires {
     private static void modifyArticle(Scanner sc) {
         System.out.println("Entrez l'id de l'article à modifier : ");
         int id = sc.nextInt();
-        Article article = Article.readArticle(id);
+        Article article = ArticleDAO.readArticle(id);
         if (article != null) {
             updateArticleDetails(article, sc);
         } else {
@@ -344,7 +355,7 @@ public class Utilitaires {
         user.setLogin(login);
         user.setMot_de_passe(mot_de_passe);
 
-        Utilisateur.updateUser(user);
+        UtilisateurDAO.updateUser(user);
         System.out.println("Utilisateur modifié.");
     }
 
@@ -366,7 +377,7 @@ public class Utilitaires {
         client.setEmail(email);
         client.setAdresse(adresse);
 
-        Client.updateClient(client);
+        ClientDAO.updateClient(client);
         System.out.println("Client modifié.");
     }
 
@@ -380,12 +391,12 @@ public class Utilitaires {
         System.out.println("Entrez la nouvelle adresse : ");
         String adresse = sc.next();
 
-        fournisseur.setNumero(numero);
+        fournisseur.setNumero_fournisseur(numero);
         fournisseur.setNom(nom);
         fournisseur.setEmail(email);
         fournisseur.setAdresse(adresse);
 
-        Fournisseur.updateFournisseur(fournisseur);
+        FournisseurDAO.updateFournisseur(fournisseur);
         System.out.println("Fournisseur modifié.");
     }
 
@@ -404,7 +415,7 @@ public class Utilitaires {
         article.setType(type);
         article.setDescription(description);
 
-        Article.updateArticle(article);
+        ArticleDAO.updateArticle(article);
         System.out.println("Article modifié.");
     }
 
