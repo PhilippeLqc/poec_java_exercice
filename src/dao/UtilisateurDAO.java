@@ -1,60 +1,42 @@
 package dao;
-
 import java.sql.*;
 import modele.Utilisateur;
 
-public class UtilisateurDAO {
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/jdbc_exo", "root", "");
-    }
-
-    private static void executeUpdate(String query, Object... values) {
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            for (int i = 0; i < values.length; i++) {
-                statement.setObject(i + 1, values[i]);
-            }
-            statement.executeUpdate();
-            System.out.println("Requête exécutée avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static Utilisateur executeSqlWithoutModifydata(String query, Object... values) {
-        Utilisateur user = null;
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            for (int i = 0; i < values.length; i++) {
-                statement.setObject(i + 1, values[i]);
-            }
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                int userId = resultSet.getInt("id");
-                int userNumeroEmploye = resultSet.getInt("numero_employe");
-                String userNom = resultSet.getString("nom");
-                String userPrenom = resultSet.getString("prenom");
-                String userEmail = resultSet.getString("email");
-                String userLogin = resultSet.getString("login");
-                String userMotDePasse = resultSet.getString("mot_de_passe");
-
-                user = new Utilisateur(userId, userNumeroEmploye, userNom, userPrenom, userEmail, userLogin, userMotDePasse);
-                System.out.println("Utilisateur trouvé : " + user);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return user;
-    }
+public class UtilisateurDAO extends BaseDAO{
 
     public static Utilisateur readUser(int id) {
         String query = "SELECT * FROM Utilisateurs WHERE id = ?";
-        return executeSqlWithoutModifydata(query, id);
+        return executeSqlWithoutModifydata(query, new Object[]{id}, ResultSet -> {
+            try {
+                int userId = ResultSet.getInt("id");
+                int numero_employe = ResultSet.getInt("numero_employe");
+                String nom = ResultSet.getString("nom");
+                String prenom = ResultSet.getString("prenom");
+                String email = ResultSet.getString("email");
+                String login = ResultSet.getString("login");
+                String mot_de_passe = ResultSet.getString("mot_de_passe");
+                System.out.println("Utilisateur trouvé : " + "numero employe : " + numero_employe + " " + " nom : " + nom + " " + " prenom : " + prenom + " "+ " email : " + email + " " + " login : " + login);
+                return new Utilisateur(userId, numero_employe, nom, prenom, email, login, mot_de_passe);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Aucun utilisateur trouvé avec l'ID : " + id);
+                return null;
+            }
+        });
     }
 
-    public static void listUsers() {
-        String query = "SELECT * FROM Utilisateurs";
-        executeSqlWithoutModifydata(query);
+  public static void listUsers() {
+      String query = "SELECT * FROM Utilisateurs";
+      executeSqlWithoutModifydata(query, new Object[]{}, ResultSet -> {
+          try {
+              while (ResultSet.next()) {
+                  System.out.println("id: " + ResultSet.getInt("id") + ", numero_employe: " + ResultSet.getInt("numero_employe") + ", nom: " + ResultSet.getString("nom") + ", prenom: " + ResultSet.getString("prenom") + ", email: " + ResultSet.getString("email") + ", login: " + ResultSet.getString("login"));
+              }
+          } catch (SQLException e) {
+              e.printStackTrace();
+          }
+          return null;
+      });
     }
 
     public static void writeUser(Utilisateur user) {

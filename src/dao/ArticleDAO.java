@@ -3,59 +3,39 @@ package dao;
 import modele.Article;
 import java.sql.*;
 
-public class ArticleDAO {
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/jdbc_exo", "root", "");
-    }
-
-    private static void executeUpdate(String query, Object... values) {
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            for (int i = 0; i < values.length; i++) {
-                statement.setObject(i + 1, values[i]);
-            }
-            statement.executeUpdate();
-            System.out.println("Requête exécutée avec succès !");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static Article executeSqlWithoutModifydata(String query, Object... values) {
-        Article article = null;
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            for (int i = 0; i < values.length; i++) {
-                statement.setObject(i + 1, values[i]);
-            }
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                int articleId = resultSet.getInt("id");
-                int articleNumero = resultSet.getInt("numero_article");
-                String articleType = resultSet.getString("type");
-                String articleNom = resultSet.getString("nom");
-                String articleDescription = resultSet.getString("description");
-
-                article = new Article(articleId, articleNumero, articleType, articleNom, articleDescription);
-
-                System.out.println("Article trouvé : " + article);
-            } else {
-                System.out.println("Aucun article trouvé.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return article;
-    }
+public class ArticleDAO extends BaseDAO{
 
     public static Article readArticle(int numero) {
         String query = "SELECT * FROM Articles WHERE numero_article = ?";
-        return executeSqlWithoutModifydata(query, numero);
+        return executeSqlWithoutModifydata(query, new Object[]{numero}, ResultSet -> {
+            try {
+                int id = ResultSet.getInt("id");
+                int numero_article = ResultSet.getInt("numero_article");
+                String type = ResultSet.getString("type");
+                String nom = ResultSet.getString("nom");
+                String description = ResultSet.getString("description");
+                System.out.println("Article trouvé : " + "numero article : " + numero_article + " " + " type : " + type + " " + " nom : " + nom + " "+ " description : " + description);
+                return new Article(id, numero_article, type, nom, description);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Aucun article trouvé avec le numéro : " + numero);
+                return null;
+            }
+        });
     }
 
     public static void readAllArticles() {
         String query = "SELECT * FROM Articles";
-        executeSqlWithoutModifydata(query);
+        executeSqlWithoutModifydata(query, new Object[]{}, ResultSet -> {
+            try {
+                while (ResultSet.next()) {
+                    System.out.println("id: " + ResultSet.getInt("id") + ", numero_article: " + ResultSet.getInt("numero_article") + ", type: " + ResultSet.getString("type") + ", nom: " + ResultSet.getString("nom") + ", description: " + ResultSet.getString("description"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
     }
 
     public static void writeArticle(Article article) {
