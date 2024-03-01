@@ -24,7 +24,7 @@ public abstract class BaseDAO {
     }
 
     // This method is used to execute a query that does not modify the database
-    protected static <T> T executeSqlWithoutModifydata(String query, Object[] values, Function<ResultSet, T> mapper) {
+    protected static <T> T executeSqlWithoutModifydata(String query, Object[] values, Function <ResultSet, T> mapper) {
         T result = null;
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
